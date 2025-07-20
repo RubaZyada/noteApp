@@ -34,26 +34,27 @@ class _AddNewTaskState extends State<AddNewTask> {
   Future<void> uploadTaskToDb() async {
     try {
       final id = const Uuid().v4();
-      final imagesRef =
-          FirebaseStorage.instance.ref('images').child(id); // images/${id}
 
-      final uploadTask = imagesRef.putFile(file!);
-      final taskSnapshot = await uploadTask;
+      // final imgRef =
+      //     FirebaseStorage.instance.ref().child("task_images").child("$id.jpg");
+      // final uploadTask = imgRef.putFile(file!);
+      // final taskSnapshot = await uploadTask;
+      // final imgUrl = await taskSnapshot.ref.getDownloadURL();
 
-      final imageURL = await taskSnapshot.ref.getDownloadURL();
-
-      await FirebaseFirestore.instance.collection("tasks").doc(id).set({
+      final data =
+          await FirebaseFirestore.instance.collection("tasks").doc(id).set({
         "title": titleController.text.trim(),
         "description": descriptionController.text.trim(),
         "date": selectedDate,
         "creator": FirebaseAuth.instance.currentUser!.uid,
         "postedAt": FieldValue.serverTimestamp(),
         "color": rgbToHex(_selectedColor),
-        "imageURL": imageURL,
+        "id": id,
+        // "imageUrl": imgUrl,
       });
       print(id);
     } catch (e) {
-      print(e);
+      print(' erroooooor $e');
     }
   }
 
@@ -92,35 +93,7 @@ class _AddNewTaskState extends State<AddNewTask> {
           padding: const EdgeInsets.all(20.0),
           child: Column(
             children: [
-              GestureDetector(
-                onTap: () async {
-                  final image = await selectImage();
-                  setState(() {
-                    file = image;
-                  });
-                },
-                child: DottedBorder(
-                  borderType: BorderType.RRect,
-                  radius: const Radius.circular(10),
-                  dashPattern: const [10, 4],
-                  strokeCap: StrokeCap.round,
-                  child: Container(
-                    width: double.infinity,
-                    height: 150,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: file != null
-                        ? Image.file(file!)
-                        : const Center(
-                            child: Icon(
-                              Icons.camera_alt_outlined,
-                              size: 40,
-                            ),
-                          ),
-                  ),
-                ),
-              ),
+              
               const SizedBox(height: 10),
               TextFormField(
                 controller: titleController,
@@ -154,6 +127,7 @@ class _AddNewTaskState extends State<AddNewTask> {
               ElevatedButton(
                 onPressed: () async {
                   await uploadTaskToDb();
+                  Navigator.pop(context);
                 },
                 child: const Text(
                   'SUBMIT',
