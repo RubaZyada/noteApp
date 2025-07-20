@@ -1,18 +1,19 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+
 import 'package:finalproject/login_page.dart';
 
-class LoginPage extends StatefulWidget {
+class SignUpPage extends StatefulWidget {
   static route() => MaterialPageRoute(
-        builder: (context) => const LoginPage(),
+        builder: (context) => const SignUpPage(),
       );
-  const LoginPage({super.key});
+  const SignUpPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<SignUpPage> createState() => _SignUpPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _SignUpPageState extends State<SignUpPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final formKey = GlobalKey<FormState>();
@@ -24,31 +25,22 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  Future<void> loginWithEmailAndPassword() async {
+  Future<void> signupWithEmailAndPassword() async {
     try {
       final userCredential =
-          await FirebaseAuth.instance.signInWithEmailAndPassword(
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
       );
       print(userCredential);
-      if (userCredential.user != null) {
-        // Login successful, navigate to home page
-        Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => MyHomePage()));
-      } else {
-        // Login failed, show error
-        print('Login failed: No user found');
-      }
-    } catch (e) {
-      print(e.toString());
+    } on FirebaseAuthException catch (e) {
+      print(e.message);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
       body: Padding(
         padding: const EdgeInsets.all(15.0),
         child: Form(
@@ -57,13 +49,14 @@ class _LoginPageState extends State<LoginPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Text(
-                'Sign In.',
+                'Sign Up.',
                 style: TextStyle(
                   fontSize: 50,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 30),
+              const SizedBox(height: 10),
+              const SizedBox(height: 20),
               TextFormField(
                 controller: emailController,
                 decoration: const InputDecoration(
@@ -81,10 +74,10 @@ class _LoginPageState extends State<LoginPage> {
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
-                  loginWithEmailAndPassword();
+                  signupWithEmailAndPassword();
                 },
                 child: const Text(
-                  'SIGN IN',
+                  'SIGN UP',
                   style: TextStyle(
                     fontSize: 16,
                     color: Colors.white,
@@ -94,15 +87,15 @@ class _LoginPageState extends State<LoginPage> {
               const SizedBox(height: 20),
               GestureDetector(
                 onTap: () {
-                  Navigator.push(context, SignUpPage.route());
+                  Navigator.push(context, LoginPage.route());
                 },
                 child: RichText(
                   text: TextSpan(
-                    text: 'Don\'t have an account? ',
+                    text: 'Already have an account? ',
                     style: Theme.of(context).textTheme.titleMedium,
                     children: [
                       TextSpan(
-                        text: 'Sign Up',
+                        text: 'Sign In',
                         style:
                             Theme.of(context).textTheme.titleMedium?.copyWith(
                                   fontWeight: FontWeight.bold,
